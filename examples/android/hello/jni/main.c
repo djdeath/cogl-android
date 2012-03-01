@@ -34,6 +34,7 @@ typedef struct
 
   CoglContext *context;
   CoglPrimitive *triangle;
+  CoglPipeline *pipeline;
   CoglFramebuffer *fb;
 } TestData;
 
@@ -72,10 +73,11 @@ static int test_init (TestData* data)
 
   cogl_onscreen_show (onscreen);
 
-  cogl_push_framebuffer (data->fb);
-
-  data->triangle = cogl_primitive_new_p2c4 (COGL_VERTICES_MODE_TRIANGLES,
+  data->triangle = cogl_primitive_new_p2c4 (data->context,
+                                            COGL_VERTICES_MODE_TRIANGLES,
                                             3, triangle_vertices);
+
+  data->pipeline = cogl_pipeline_new (data->context);
 
   return 0;
 }
@@ -84,8 +86,9 @@ static test_draw_frame_and_swap (TestData *data)
 {
   if (data->context)
     {
-      cogl_primitive_draw (data->triangle);
-      cogl_framebuffer_swap_buffers (data->fb);
+      cogl_framebuffer_clear4f (data->fb, COGL_BUFFER_BIT_COLOR, 1, 0, 0, 1);
+      cogl_framebuffer_draw_primitive (data->fb, data->pipeline, data->triangle);
+      cogl_onscreen_swap_buffers (COGL_ONSCREEN (data->fb));
     }
 }
 
@@ -95,6 +98,7 @@ test_fini (TestData *data)
   if (data->fb)
     {
       cogl_object_unref (data->triangle);
+      cogl_object_unref (data->pipeline);
       cogl_object_unref (data->fb);
       cogl_object_unref (data->context);
       data->triangle = NULL;

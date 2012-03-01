@@ -88,6 +88,8 @@ typedef struct _CoglRendererEGL
   EGLint egl_version_major;
   EGLint egl_version_minor;
 
+  GHashTable *core_functions_hash;
+
   /* Data specific to the EGL platform */
   void *platform;
   /* vtable for platform specific parts */

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BEGIN_INCLUDE(manifest) -->
+<!-- XXX: the package name had to be hacked to get a favourable
+     package listing in /data/system/packages.list in the first
+     8k to workaround a bug in the run-as command. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="org.cogl.Hello"
+        package="com.cogl.example.zzz.Hello"
         android:versionCode="1"
         android:versionName="1.0">
 
@@ -9,7 +12,7 @@
     <uses-sdk android:minSdkVersion="9" />
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
-    <application android:label="@string/app_name" android:hasCode="false">
+    <application android:label="@string/app_name" android:hasCode="false" android:debuggable="true">
 
         <!-- Our activity is the built-in NativeActivity framework class.
              This will take care of integrating with our NDK code. -->

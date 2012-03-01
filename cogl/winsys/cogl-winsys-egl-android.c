@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include <stdint.h>
 #include <android/native_window.h>
 
 #include "cogl-winsys-egl-android-private.h"
@@ -181,6 +182,20 @@ _cogl_winsys_egl_display_destroy (CoglDisplay *display)
   g_slice_free (CoglDisplayAndroid, egl_display->platform);
 }
 
+static void
+_cogl_winsys_egl_cleanup_context (CoglDisplay *display)
+{
+  CoglRenderer *renderer = display->renderer;
+  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglDisplayEGL *egl_display = display->winsys;
+
+  if (egl_display->egl_surface != EGL_NO_SURFACE)
+    {
+      eglDestroySurface (egl_renderer->edpy, egl_display->egl_surface);
+      egl_display->egl_surface = EGL_NO_SURFACE;
+    }
+}
+
 static gboolean
 _cogl_winsys_egl_onscreen_init (CoglOnscreen *onscreen,
                                 EGLConfig egl_config,
@@ -217,6 +232,7 @@ _cogl_winsys_egl_vtable =
   {
     .display_setup = _cogl_winsys_egl_display_setup,
     .display_destroy = _cogl_winsys_egl_display_destroy,
+    .cleanup_context = _cogl_winsys_egl_cleanup_context,
     .context_created = _cogl_winsys_egl_context_created,
     .onscreen_init = _cogl_winsys_egl_onscreen_init,
   };
