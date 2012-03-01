@@ -133,6 +133,37 @@ get_error_string (void)
   default:
     g_assert_not_reached ();
   }
+
+/* Define an array of features */
+#undef COGL_EXT_BEGIN
+#define COGL_EXT_BEGIN(name,                                            \
+                       min_gl_major, min_gl_minor,                      \
+                       gles_availability,                               \
+                       namespaces, extension_names)
+#undef COGL_EXT_FUNCTION
+#define COGL_EXT_FUNCTION(ret, name, args)  #name,
+#undef COGL_EXT_END
+#define COGL_EXT_END()
+
+static GHashTable *
+create_core_functions_table (CoglRenderer *renderer, const char **functions)
+{
+  GHashTable *table;
+  int i;
+
+  table = g_hash_table_new (g_str_hash, g_str_equal);
+  for (i = 0; functions[i]; i++)
+    {
+      void *ptr;
+      g_module_symbol (renderer->libgl_module, functions[i], &ptr);
+      if (G_UNLIKELY (!ptr))
+        {
+          g_warning ("Core driver symbol missing: %s", functions[i]);
+          continue;
+        }
+      g_hash_table_insert (table, (void *)functions[i], ptr);
+    }
+  return table;
 }
 
 static CoglFuncPtr
@@ -141,6 +172,40 @@ _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         CoglBool in_core)
 {
   void *ptr = NULL;
+  CoglRendererEGL *egl_renderer = renderer->winsys;
+  void *ptr;
+
+  if (renderer->driver == COGL_DRIVER_GLES1 ||
+      renderer->driver == COGL_DRIVER_GLES2)
+    {
+      const char *gles1_functions[] = {
+#include "gl-prototypes/cogl-gles1-functions.h"
+        NULL
+      };
+      const char *gles2_functions[] = {
+#include "gl-prototypes/cogl-gles2-functions.h"
+        NULL
+      };
+      const char **functions;
+
+      if (!egl_renderer->core_functions_hash)
+        {
+          if (renderer->driver == COGL_DRIVER_GLES1)
+            functions = gles1_functions;
+          else if (renderer->driver == COGL_DRIVER_GLES2)
+            functions = gles2_functions;
+
+          egl_renderer->core_functions_hash =
+            create_core_functions_table (renderer, functions);
+        }
+
+      ptr = g_hash_table_lookup (egl_renderer->core_functions_hash, name);
+      if (ptr)
+        return ptr;
+
+      /* FIXME: for GL we currently just assume that the
+       * driver will return NULL for core symbols. */
+    }
 
   if (!in_core)
     ptr = eglGetProcAddress (name);
@@ -667,9 +732,11 @@ _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
                                          egl_display->current_context);
         }
 
+#if 0
       if (eglDestroySurface (egl_renderer->edpy, egl_onscreen->egl_surface)
           == EGL_FALSE)
         g_warning ("Failed to destroy EGL surface");
+#endif
       egl_onscreen->egl_surface = EGL_NO_SURFACE;
     }
 
