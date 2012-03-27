@@ -47,6 +47,7 @@
 #include "cogl2-path.h"
 #include "cogl-attribute-private.h"
 #include "cogl1-context.h"
+#include "cogl-gpu-info-private.h"
 
 #include <string.h>
 
@@ -238,6 +239,8 @@ cogl_context_new (CoglDisplay *display,
     default:
       g_assert_not_reached ();
     }
+
+  _cogl_gpu_info_init (context, &context->gpu);
 
   context->attribute_name_states_hash =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
