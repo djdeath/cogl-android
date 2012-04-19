@@ -1,3 +1,35 @@
+Cogl 1.10.2                                                        2012-04-19
+
+  • List of changes since Cogl 1.10.0
+
+  » Fix for fallback path in cogl_texture_get_data when reading from
+    an FBO doesn't work
+  » Bug fix to make cogl_pipeline_get_depth_state work
+  » The cogl-crate and cogl-msaa examples now show error messages if
+    it fails to initialise
+  » cogl_context_new no longer crashes if initialisation fails when
+    passed a NULL display
+  » Visual Studio build fixes
+  » Translation updates
+
+  • List of bugs fixed since Cogl 1.10.0
+
+    https://bugzilla.gnome.org:
+
+    #672533 - Quartz image option causes compile error
+    #673137 - Grab the current window -> Screenshot is mirrored
+
+Many thanks to:
+
+  Robert Bragg
+  Chun-wei Fan
+  Adel Gadllah
+  Bruno Brouard
+  Gabor Kelemen
+  Krishnababu Krothapalli
+  Rajesh Ranjan
+  Yinghua Wang
+
 Cogl 1.10.0                                                        2012-03-20
 
   • List of changes since Cogl 1.9.8
