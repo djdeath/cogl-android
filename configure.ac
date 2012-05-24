@@ -999,6 +999,7 @@ AS_IF([test "x$enable_android_egl_platform" = "xyes"],
                         [AC_MSG_ERROR([Unable to locate android/native_window.h])])
 
         COGL_DEFINES_SYMBOLS="$COGL_DEFINES_SYMBOLS COGL_HAS_EGL_PLATFORM_ANDROID_SUPPORT"
+        COGL_EXTRA_LDFLAGS="$COGL_EXTRA_LDFLAGS -landroid"
       ])
 AM_CONDITIONAL(SUPPORT_EGL_PLATFORM_ANDROID,
                [test "x$enable_android_egl_platform" = "xyes"])
