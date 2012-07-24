@@ -36,6 +36,9 @@
 #include <cogl/cogl-framebuffer.h>
 #include <cogl/cogl-frame-info.h>
 #include <cogl/cogl-object.h>
+#ifdef COGL_HAS_EGL_PLATFORM_ANDROID_SUPPORT
+#include <android/native_window.h>
+#endif
 
 COGL_BEGIN_DECLS
 
@@ -239,6 +242,20 @@ void
 cogl_android_onscreen_update_size (CoglOnscreen *onscreen,
                                    int           width,
                                    int           height);
+
+/**
+ * cogl_android_onscreen_update_native_window:
+ * @onscreen: A #CoglOnscreen framebuffer
+ * @window: The new native window
+ *
+ *
+ * Since: 1.12
+ * Stability: unstable
+ */
+void
+cogl_android_onscreen_update_native_window (CoglOnscreen  *onscreen,
+                                            ANativeWindow *window);
+
 #endif /* COGL_HAS_EGL_PLATFORM_ANDROID_SUPPORT */
 
 
