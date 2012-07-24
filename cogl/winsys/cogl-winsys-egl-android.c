@@ -238,6 +238,44 @@ cogl_android_onscreen_update_size (CoglOnscreen *onscreen,
   _cogl_framebuffer_winsys_update_size (fb, width, height);
 }
 
+void
+cogl_android_onscreen_update_native_window (CoglOnscreen  *onscreen,
+                                            ANativeWindow *window)
+{
+  CoglFramebuffer *fb = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (fb);
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglRenderer *renderer = display->renderer;
+  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglDisplayEGL *egl_display = display->winsys;
+  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+
+  android_native_window = window;
+
+  eglMakeCurrent (egl_renderer->edpy,
+                  EGL_NO_SURFACE,
+                  EGL_NO_SURFACE,
+                  EGL_NO_CONTEXT);
+
+  eglDestroySurface (egl_renderer->edpy, egl_display->egl_surface);
+  egl_onscreen->egl_surface = egl_display->egl_surface = EGL_NO_SURFACE;
+
+  egl_onscreen->egl_surface = egl_display->egl_surface =
+    eglCreateWindowSurface (egl_renderer->edpy,
+                            egl_display->egl_config,
+                            (NativeWindowType) android_native_window,
+                            NULL);
+
+  if (egl_display->egl_surface == EGL_NO_SURFACE)
+    g_critical ("Unable to create EGL window surface");
+
+  if (!eglMakeCurrent (egl_renderer->edpy,
+                       egl_display->egl_surface,
+                       egl_display->egl_surface,
+                       egl_display->egl_context))
+    g_critical ("Unable to eglMakeCurrent with egl surface");
+}
+
 static const CoglWinsysEGLVtable
 _cogl_winsys_egl_vtable =
   {
