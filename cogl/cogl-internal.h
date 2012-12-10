@@ -37,6 +37,7 @@ _cogl_gl_error_to_string (GLenum error_code);
 
 #define GE(ctx, x)                      G_STMT_START {  \
   GLenum __err;                                         \
+  gboolean __out_of_memory = FALSE;                     \
   (ctx)->x;                                             \
   while ((__err = (ctx)->glGetError ()) != GL_NO_ERROR) \
     {                                                   \
@@ -44,7 +45,13 @@ _cogl_gl_error_to_string (GLenum error_code);
                  G_STRLOC,                              \
                  __err,                                 \
                  _cogl_gl_error_to_string (__err));     \
-    }                                   } G_STMT_END
+      if (__err == GL_OUT_OF_MEMORY)                    \
+        __out_of_memory = TRUE;                         \
+    }                                                   \
+  /* If we have ran out of memory, panic and abort. */  \
+  if (__out_of_memory)                                  \
+    g_error ("Out of memory!");                         \
+                                        } G_STMT_END
 
 #define GE_RET(ret, ctx, x)             G_STMT_START {  \
   GLenum __err;                                         \
