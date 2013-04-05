@@ -133,6 +133,7 @@ get_error_string (void)
   default:
     g_assert_not_reached ();
   }
+}
 
 /* Define an array of features */
 #undef COGL_EXT_BEGIN
@@ -173,7 +174,6 @@ _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
 {
   void *ptr = NULL;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  void *ptr;
 
   if (renderer->driver == COGL_DRIVER_GLES1 ||
       renderer->driver == COGL_DRIVER_GLES2)
